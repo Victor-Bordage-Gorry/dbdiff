@@ -1,0 +1,16 @@
+{
+    "name": "victor/dbdiff",
+    "description": "test",
+    "authors": [
+        {
+            "name": "Victor BORDAGE-GORRY",
+            "email": "victor.bordage-gorry@globalis-ms.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "DbDiff\\": "src/"
+        }
+    }
+}
