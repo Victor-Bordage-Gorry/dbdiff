@@ -2,14 +2,10 @@
 
 namespace DbDiff\DbComponent;
 
-class ColumnComponent {
-    use TraitComponent;
+class ColumnComponent extends \DbDiff\DbComponent
+{
 
     protected $attributes = array();
-
-    public function __construct(string $name) {
-        $this->setName($name);
-    }
 
     /**
      * ### SETTERS ###
@@ -20,7 +16,8 @@ class ColumnComponent {
      *
      * @param   array   $attributes     array of attributes ('name' => 'value')
      */
-    public function setAttributes(array $attributes) {
+    public function setAttributes(array $attributes)
+    {
         if (empty($attributes) || !is_array($attributes)) {
             return false;
         }
@@ -35,7 +32,8 @@ class ColumnComponent {
      * @param string    $name
      * @param string    $value
      */
-    public function setAttribute($name, $value) {
+    public function setAttribute($name, $value)
+    {
         $this->attributes[$name] = $value;
     }
 
@@ -48,7 +46,8 @@ class ColumnComponent {
      *
      * @return  array
      */
-    public function getAttributes() {
+    public function getAttributes()
+    {
         return $this->attributes;
     }
 
@@ -57,7 +56,8 @@ class ColumnComponent {
      *
      * @return  array
      */
-    public function getAttributesName() {
+    public function getAttributesName()
+    {
         return array_keys($this->attributes);
     }
 
@@ -68,7 +68,8 @@ class ColumnComponent {
      * @return  string
      * @throws  BadMethodCallException
      */
-    public function getAttribute(string $name) {
+    public function getAttribute(string $name)
+    {
         if (isset($this->attributes[$name])) {
             return $this->attributes[$name];
         } else {

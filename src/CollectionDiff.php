@@ -2,27 +2,31 @@
 
 namespace DbDiff;
 
-abstract class CollectionDiff {
+abstract class CollectionDiff
+{
 
     protected $collection;
 
-    public function __set($name, $data) {
+    public function __set($name, $data)
+    {
         $this->collection[$name] = $data;
     }
 
-    public function __get($collection) {
+    public function __get($collection)
+    {
         if (isset($this->collection[$collection])) {
             return $this->collection[$collection];
         }
         return false;
     }
 
-    public function getCollection() {
+    public function getCollection()
+    {
         return $this->collection;
     }
 
-    public function getCollectionKeys() {
+    public function getCollectionKeys()
+    {
         return array_keys($this->collection);
     }
-
 }

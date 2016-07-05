@@ -1,13 +1,14 @@
 <?php
 namespace DbDiff;
 
-class DbComponent {
+abstract class DbComponent
+{
 
-    use DbComponent\TraitComponent;
+    protected $name;
+    protected $missing;
 
-    protected $tables = array();
-
-    public function __construct(string $name) {
+    public function __construct(string $name)
+    {
         $this->setName($name);
     }
 
@@ -16,27 +17,13 @@ class DbComponent {
      **/
 
     /**
-     * Add multiple tables to the DbComponent object
+     * Set database's name
      *
-     * @param   array   $tables     array of TableComponent object
+     * @param   string  $name
      */
-    public function setTables(array $tables) {
-        if (empty($tables) || !is_array($tables)) {
-            return false;
-        }
-
-        foreach ($tables as $table) {
-            $this->setTable($table);
-        }
-    }
-
-    /**
-     * Add a table to the DbComponent object
-     *
-     * @param   TableComponent  $table
-     */
-    public function setTable(DbComponent\TableComponent $table) {
-        $this->tables[$table->getName()] = $table;
+    public function setName(string $name)
+    {
+        $this->name = $name;
     }
 
     /**
@@ -44,36 +31,34 @@ class DbComponent {
      **/
 
     /**
-     * Return all tables setted
+     * Get database's name
      *
-     * @return  array
+     * @return  string
      */
-    public function getTables() {
-        return $this->tables;
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
-     * Return all tables' name
-     *
-     * @return  array
-     */
-    public function getTablesName() {
-        return array_keys($this->tables);
-    }
+     * ### SPECIFICS FUNCTIONS ###
+     **/
 
     /**
-     * Return TableComponent object added
+     * Set missing attribute and return the value. If $missing is null, the function return the value of the attribute
      *
-     * @param   string  $name   name of the table
-     * @return  TableComponent
-     * @throws  BadMethodCallException
+     * @param   boolean $missing
+     * @return  boolean
      */
-    public function getTable(string $name) {
-        if (isset($this->tables[$name])) {
-            return $this->tables[$name];
-        } else {
-            //throw new \BadMethodCallException('Error : table ' . $name . ' not found');
-            return false;
+    public function missing($missing = null)
+    {
+        if ($missing !== null) {
+            if ($missing === false) {
+                $this->missing = false;
+            } else {
+                $this->missing = true;
+            }
         }
+        return $this->missing;
     }
 }

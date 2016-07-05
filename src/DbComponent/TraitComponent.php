@@ -1,7 +1,8 @@
 <?php
 namespace DbDiff\DbComponent;
 
-trait TraitComponent {
+trait TraitComponent
+{
 
     protected $name;
     protected $missing;
@@ -12,7 +13,8 @@ trait TraitComponent {
      *
      * @return  string
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -21,7 +23,8 @@ trait TraitComponent {
      *
      * @param   string  $name
      */
-    public function setName(string $name) {
+    public function setName(string $name)
+    {
         $this->name = $name;
     }
 
@@ -31,7 +34,8 @@ trait TraitComponent {
      * @param   boolean $missing
      * @return  boolean
      */
-    public function missing($missing = null) {
+    public function missing($missing = null)
+    {
         if ($missing !== null) {
             if ($missing === false) {
                 $this->missing = false;

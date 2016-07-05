@@ -1,14 +1,19 @@
 <?php
-namespace DbDiff;
 
-class DbComponent {
+namespace DbDiff\DbComponent;
 
-    use DbComponent\TraitComponent;
+use \DbDiff\DbComponent as Dbc;
+
+class DbComponent extends Dbc
+{
 
     protected $tables = array();
+    protected $type;
 
-    public function __construct(string $name) {
+    public function __construct(string $name, string $type)
+    {
         $this->setName($name);
+        $this->setType($type);
     }
 
     /**
@@ -20,7 +25,8 @@ class DbComponent {
      *
      * @param   array   $tables     array of TableComponent object
      */
-    public function setTables(array $tables) {
+    public function setTables(array $tables)
+    {
         if (empty($tables) || !is_array($tables)) {
             return false;
         }
@@ -35,8 +41,19 @@ class DbComponent {
      *
      * @param   TableComponent  $table
      */
-    public function setTable(DbComponent\TableComponent $table) {
+    public function setTable(TableComponent $table)
+    {
         $this->tables[$table->getName()] = $table;
+    }
+
+    /**
+     * Set database's name
+     *
+     * @param   string  $name
+     */
+    public function setType(string $type)
+    {
+        $this->type = $type;
     }
 
     /**
@@ -48,7 +65,8 @@ class DbComponent {
      *
      * @return  array
      */
-    public function getTables() {
+    public function getTables()
+    {
         return $this->tables;
     }
 
@@ -57,7 +75,8 @@ class DbComponent {
      *
      * @return  array
      */
-    public function getTablesName() {
+    public function getTablesName()
+    {
         return array_keys($this->tables);
     }
 
@@ -68,12 +87,23 @@ class DbComponent {
      * @return  TableComponent
      * @throws  BadMethodCallException
      */
-    public function getTable(string $name) {
+    public function getTable(string $name)
+    {
         if (isset($this->tables[$name])) {
             return $this->tables[$name];
         } else {
             //throw new \BadMethodCallException('Error : table ' . $name . ' not found');
             return false;
         }
+    }
+
+    /**
+     * Get database's type
+     *
+     * @return  string
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }

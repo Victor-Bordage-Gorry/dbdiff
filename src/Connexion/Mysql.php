@@ -4,13 +4,40 @@ namespace DbDiff\Connexion;
 
 use DbDiff\Connexion;
 
-class Mysql extends Connexion {
+class Mysql extends Connexion
+{
 
-    protected function connectDb($host, $login, $password, $dbname) {
-        try{
+    const DB_TYPE = 'Mysql';
+    protected $dictionary = array(
+        'COLUMN_FIELD' => 'Field',
+        'COLUMN_TYPE' => 'Type',
+        'COLUMN_COLLATION' => 'Collation',
+        'COLUMN_NULL' => 'Null',
+        'COLUMN_KEY' => 'Key',
+        'COLUMN_DEFAULT' => 'Default',
+        'COLUMN_EXTRA' => 'Extra',
+        'COLUMN_PRIVILEGES' => 'Privileges',
+        'COLUMN_COMMENT' => 'comment',
+        'INDEX_TABLE' => 'table',
+        'INDEX_NON_UNIQUE' => 'non_unique',
+        'INDEX_KEY_NAME' => 'key_name',
+        'INDEX_SEQ_IN_INDEX' => 'seq_in_index',
+        'INDEX_COLUMN_NAME' => 'column_name',
+        'INDEX_COLLATION' => 'collation',
+        'INDEX_CARDINALITY' => 'cardinality',
+        'INDEX_SUB_PART' => 'sub_part',
+        'INDEX_PACKED' => 'packed',
+        'INDEX_NULL' => 'null',
+        'INDEX_INDEX_TYPE' => 'index_type',
+        'INDEX_COMMENT' => 'Comment',
+        'INDEX_INDEX_COMMENT' => 'index_comment',
+    );
+
+    protected function connectDb($host, $login, $password, $dbname)
+    {
+        try {
             $this->db = new \PDO('mysql:host=' . $host . ';dbname=' . $dbname, $login, $password);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             die('Error : ' . $e->getMessage());
         }
     }
@@ -20,7 +47,8 @@ class Mysql extends Connexion {
      *
      * @return array
      */
-    protected function getDbTables() {
+    protected function getDbTables()
+    {
         $return = array();
         $result = $this->query('SHOW TABLES');
         if (!$result) {
@@ -38,7 +66,8 @@ class Mysql extends Connexion {
      * @param  string $tablename
      * @return array
      */
-    protected function getTableSchema($tablename) {
+    protected function getTableSchema($tablename)
+    {
         $return = array();
 
         // get columns
@@ -71,14 +100,15 @@ class Mysql extends Connexion {
      * @return PDOStatement
      * @throws RuntimeException
      */
-    protected function query($query, $opts = null) {
+    protected function query($query, $opts = null)
+    {
         if ($opts) {
             $result = $this->db->query($query, $opts);
         } else {
             $result = $this->db->query($query);
         }
 
-        if($result === false) {
+        if ($result === false) {
             $error = $this->db->errorInfo();
             throw new \RuntimeException('Error : ' . $error[2]);
         }

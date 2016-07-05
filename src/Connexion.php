@@ -2,12 +2,21 @@
 
 namespace DbDiff;
 
-abstract class Connexion {
+abstract class Connexion
+{
 
     protected $bdd;
     protected $dbName;
+    protected $dictionary = array();
 
-    public function __construct($host, $login, $password, $dbname) {
+    public function __construct($host, $login, $password, $dbname)
+    {
+        if (!defined('static::DB_TYPE')) {
+            throw new \InvalidArgumentException('Constant DB_TYPE is not defined on subclass ' . get_class($this));
+        }
+        if (!is_array($this->dictionary) || empty($this->dictionary)) {
+            throw new \InvalidArgumentException('Attribute dictionary is not correctly defined in ' . get_class($this));
+        }
         $this->dbName = $dbname;
         $this->connectDb($host, $login, $password, $dbname);
     }
@@ -17,7 +26,8 @@ abstract class Connexion {
      *
      * @return array
      */
-    public function getDbSchema() {
+    public function getDbSchema()
+    {
         $schema = array();
         $dbSchema = $this->getDbTables();
         if (!empty($dbSchema)) {
@@ -34,12 +44,23 @@ abstract class Connexion {
      *
      * @return string
      */
-    public function getDbName() {
+    public function getDbName()
+    {
         return $this->dbName;
     }
 
-    protected abstract function connectDb($host, $login, $password, $dbname);
-    protected abstract function getDbTables();
-    protected abstract function getTableSchema($tablename);
-    protected abstract function query($query, $opts);
+    /**
+     * Return database's dictionary
+     *
+     * @return array
+     */
+    public function getDictionary()
+    {
+        return $this->dictionary;
+    }
+
+    abstract protected function connectDb($host, $login, $password, $dbname);
+    abstract protected function getDbTables();
+    abstract protected function getTableSchema($tablename);
+    abstract protected function query($query, $opts);
 }
