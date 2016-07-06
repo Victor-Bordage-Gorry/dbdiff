@@ -2,7 +2,7 @@
 
 namespace DbDiff;
 
-class DbDictionary
+abstract class DbDictionary
 {
 
     const COLUMN_FIELD = 'field';
@@ -28,58 +28,57 @@ class DbDictionary
     const INDEX_COMMENT = 'comment';
     const INDEX_INDEX_COMMENT = 'index_comment';
 
-    private $dictionary = array();
+    protected $dictionary = [];
+    protected $db;
 
-    public function convertKeys($data)
+
+    public function __construct(\DbDiff\Connexion\Mysql $db)
     {
-
-        if (empty($data)) {
-            return $data;
+        if (!defined('static::DB_TYPE')) {
+            throw new \InvalidArgumentException('Constant DB_TYPE is not defined on subclass ' . get_class($this));
         }
-        if (!is_array($data)) {
-            return $this->dictionary[$data];
-        }
+        $this->db = $db;
+    }
 
-        $return = array();
+    /**
+     * Convert data's key
+     *
+     * @param  string   $data   data to translate
+     * @return string           data translated
+     */
+    public function convertKeys($key)
+    {
+       if (isset($this->dictionary[$key])) {
+            return $this->dictionary[$key];
+        } else {
+            throw new \InvalidArgumentException('Error in database\'s dictionary : ' . $key . ' not translated (' . $this->db::DB_TYPE . ' database).');
+        }
+    }
+
+    /**
+     * Hydrate the attribute dictonary
+     *
+     * @param   array   $data
+     * @throws  InvalidArgumentException
+     */
+    public function translate($data)
+    {
+        $return = [];
         foreach ($data as $key => $val) {
-            if (isset($this->dictionary[$key])) {
-                $return[$this->dictionary[$key]] = $val;
+            if (is_array($val)) {
+                $return[$key] = $this->translate($val);
+            } else {
+                $return[$this->convertKeys($key)] = $val;
             }
         }
         return $return;
     }
 
-    public function hydrateDictionary($data)
-    {
-        $this->checkDictionaryValidity($data);
-        foreach ($data as $const => $key) {
-            if ($this->getConstant($const)) {
-                $this->dictionary[$key] = $const;
-            } else {
-                throw new \InvalidArgumentException('Error in database\'s dictionary : ' . $const . ' for ' . $key . ' isn\'t valid value.');
-            }
-        }
+    public function getTranslatedSchema() {
+        return $this->translate($this->db->getDbSchema());
     }
 
-    private function checkDictionaryValidity($data)
-    {
-        $consts = $this->getConstants();
-        foreach ($consts as $key => $val) {
-            if (!array_key_exists($key, $data)) {
-                throw new \InvalidArgumentException('Missing information in database\'s dictionary : ' . $key . ' not translated.');
-            }
-        }
-    }
-
-    private static function getConstants()
-    {
-        $reflect = new \ReflectionClass(__CLASS__);
-        return $reflect->getConstants();
-    }
-
-    private static function getConstant($const)
-    {
-        $reflect = new \ReflectionClass(__CLASS__);
-        return $reflect->getConstant($const);
+    public function getDbName() {
+        return $this->db->getDbName();
     }
 }

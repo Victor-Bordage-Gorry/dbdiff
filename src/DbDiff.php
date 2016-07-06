@@ -14,27 +14,34 @@ class DbDiff
     protected $tables;
 
     protected $dbs;
-    protected $DbDictionary;
 
-    public function __construct(Connexion $db1, Connexion $db2)
+    public static function buildFromConfig(array $config)
     {
+        /*foreach ($i = 0; $i < 2; $i++) {
+            $conf = $config[$i];
+            if (empty($conf['host']) || empty($conf['username']) || empty($conf['password']) || empty($conf['db_name'])) {
+                throw new \InvalidArgumentException('Error in database\'s configuration.');
+            }
+
+
+        }
+        self::BuildFromDictionary($db1, $db2);*/
+    }
+
+    public function __construct(DbDictionary $db1, DbDictionary $db2) {
         $this->db1 = $db1;
         $this->db2 = $db2;
 
-        $this->schema1 = $db1->getDbSchema();
-        $this->schema2 = $db2->getDbSchema();
+        $this->schema1 = $db1->getTranslatedSchema();
+        $this->schema2 = $db2->getTranslatedSchema();
 
         $this->tables1 = array_keys($this->schema1);
         $this->tables2 = array_keys($this->schema2);
 
         $this->tables = array_unique(array_merge($this->tables1, $this->tables2));
 
-        $this->DbDictionary = new DbDictionary();
-
-        $this->setDb(new \DbDiff\DbComponent\DbComponent($this->db1->getDbName(), $this->db1::DB_TYPE), $this->db1->getDictionary());
-        $this->setDb(new \DbDiff\DbComponent\DbComponent($this->db2->getDbName(), $this->db2::DB_TYPE), $this->db2->getDictionary());
-
-
+        $this->setDb(new \DbDiff\DbComponent\DbComponent($this->db1->getDbName(), $this->db1::DB_TYPE));
+        $this->setDb(new \DbDiff\DbComponent\DbComponent($this->db2->getDbName(), $this->db2::DB_TYPE));
     }
 
     /**
@@ -45,14 +52,10 @@ class DbDiff
      * Set a DbComponent to the dbs attribute
      *
      * @param   string  $name
-     * @param   array   $dictionary
      */
-    private function setDb(DbComponent $db, $dictionary = array())
+    private function setDb(DbComponent $db)
     {
         $this->dbs[$db->getName()] = $db;
-        if (!empty($dictionary)) {
-            $this->DbDictionary->hydrateDictionary($dictionary);
-        }
     }
 
     /**
@@ -279,7 +282,7 @@ class DbDiff
         if (is_bool($ismissing)) {
             $column->missing($ismissing);
         }
-        $column->setAttributes($this->DbDictionary->convertKeys($attributes));
+        $column->setAttributes($attributes);
 
         $table->setColumn($column);
         $db->setTable($table);
@@ -309,7 +312,7 @@ class DbDiff
         }
         if (!empty($attributes)) {
             foreach ($attributes as $name => $data) {
-                $index->setAttributes($this->DbDictionary->convertKeys($data));
+                $index->setAttributes($data);
             }
         }
         $table->setIndex($index);

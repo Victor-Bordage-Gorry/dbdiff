@@ -6,33 +6,16 @@ use DbDiff\Connexion;
 
 class Mysql extends Connexion
 {
-
     const DB_TYPE = 'Mysql';
-    protected $dictionary = array(
-        'COLUMN_FIELD' => 'Field',
-        'COLUMN_TYPE' => 'Type',
-        'COLUMN_COLLATION' => 'Collation',
-        'COLUMN_NULL' => 'Null',
-        'COLUMN_KEY' => 'Key',
-        'COLUMN_DEFAULT' => 'Default',
-        'COLUMN_EXTRA' => 'Extra',
-        'COLUMN_PRIVILEGES' => 'Privileges',
-        'COLUMN_COMMENT' => 'comment',
-        'INDEX_TABLE' => 'table',
-        'INDEX_NON_UNIQUE' => 'non_unique',
-        'INDEX_KEY_NAME' => 'key_name',
-        'INDEX_SEQ_IN_INDEX' => 'seq_in_index',
-        'INDEX_COLUMN_NAME' => 'column_name',
-        'INDEX_COLLATION' => 'collation',
-        'INDEX_CARDINALITY' => 'cardinality',
-        'INDEX_SUB_PART' => 'sub_part',
-        'INDEX_PACKED' => 'packed',
-        'INDEX_NULL' => 'null',
-        'INDEX_INDEX_TYPE' => 'index_type',
-        'INDEX_COMMENT' => 'Comment',
-        'INDEX_INDEX_COMMENT' => 'index_comment',
-    );
 
+    /**
+     * establish a connection with a database
+     *
+     * @param  string $host     database's host to connect
+     * @param  string $login    database's login to connect
+     * @param  string $password database's password to connect
+     * @param  string $dbname   database's name to connect
+     */
     protected function connectDb($host, $login, $password, $dbname)
     {
         try {
@@ -49,7 +32,7 @@ class Mysql extends Connexion
      */
     protected function getDbTables()
     {
-        $return = array();
+        $return = [];
         $result = $this->query('SHOW TABLES');
         if (!$result) {
             return false;
@@ -63,29 +46,29 @@ class Mysql extends Connexion
     /**
      * Get columns and indexes of a table
      *
-     * @param  string $tablename
+     * @param  string $tablename    name of the table
      * @return array
      */
     protected function getTableSchema($tablename)
     {
-        $return = array();
+        $return = [];
 
         // get columns
-        $result_columns = $this->query('SHOW FULL COLUMNS FROM `' . $tablename . '`', \PDO::FETCH_ASSOC);
+        $resultColumns = $this->query('SHOW FULL COLUMNS FROM `' . $tablename . '`', \PDO::FETCH_ASSOC);
 
-        if (!$result_columns) {
+        if (!$resultColumns) {
             return false;
         }
-        foreach ($result_columns as $row) {
+        foreach ($resultColumns as $row) {
             $return[$row['Field']]['column'] = $row;
         }
 
         // get indexes
-        $result_columns = $this->query('SHOW INDEX FROM `' . $tablename . '`', \PDO::FETCH_ASSOC);
-        if (!$result_columns) {
+        $resultColumns = $this->query('SHOW INDEX FROM `' . $tablename . '`', \PDO::FETCH_ASSOC);
+        if (!$resultColumns) {
             return false;
         }
-        foreach ($result_columns as $row) {
+        foreach ($resultColumns as $row) {
             $return[$row['Column_name']]['index'][$row['Key_name']] = $row;
         }
 
@@ -95,8 +78,8 @@ class Mysql extends Connexion
     /**
      *
      *
-     * @param  string $query
-     * @param  mixed $opts
+     * @param  string $query query to run
+     * @param  mixed $opts  optionnal
      * @return PDOStatement
      * @throws RuntimeException
      */
