@@ -15,6 +15,12 @@ class DbDiff
 
     protected $dbs;
 
+    /**
+     * Build DbDiff object from config array
+     *
+     * @param  array  $config  databases configurations
+     * @return DbDiff          new Dbdiff
+     */
     public static function buildFromConfig(array $config)
     {
         for ($i = 0; $i < 2; $i++) {
@@ -28,19 +34,26 @@ class DbDiff
             if (!class_exists($conf['translator'])) {
                 throw new \InvalidArgumentException('Error : unreconized translator');
             }
-            $dbC = new $conf['connector']($conf['host'], $conf['username'],$conf['password'],$conf['dbname']);
+            $dbC = new $conf['connector']($conf['host'], $conf['username'], $conf['password'], $conf['dbname']);
             $dbT = new $conf['translator']($dbC);
-            $varname = 'db' . ($i +1);
-            $$varname= $dbT;
+            $varname = 'db' . ($i + 1);
+            $$varname = $dbT;
         }
         if (isset($db1) && isset($db2)) {
             return new DbDiff($db1, $db2);
         } else {
-            throw new \InvalidArgumentException('Error : not enough database\'s configuration');
+            throw new \InvalidArgumentException('Error : not enough database configuration');
         }
     }
 
-    public function __construct(DbTranslator $db1, DbTranslator $db2) {
+    /**
+     * Constructor : Need 2 DbTranslator
+     *
+     * @param DbTranslator $db1 Translator of the first database
+     * @param DbTranslator $db2 Translator of the second database
+     */
+    public function __construct(DbTranslator $db1, DbTranslator $db2)
+    {
         $this->db1 = $db1;
         $this->db2 = $db2;
 
@@ -63,7 +76,7 @@ class DbDiff
     /**
      * Set a DbComponent to the dbs attribute
      *
-     * @param   string  $name
+     * @param   DbComponent  $db  database object
      */
     private function setDb(DbComponent $db)
     {
@@ -77,7 +90,7 @@ class DbDiff
     /**
      * Return the DbComponent of the selected database
      *
-     * @param   string  $name
+     * @param   string  $name database's name
      * @return  DbComponent
      * @throws  BadMethodCallException
      */
@@ -108,7 +121,6 @@ class DbDiff
     /**
      * Compare 2 databases' schema
      *
-     * @param   array    $opts   associative array to manage the function returns
      * @return  array
      */
     public function compare()
@@ -126,16 +138,15 @@ class DbDiff
      */
     public function compareTables()
     {
-
-        foreach ($this->tables as $table_name) {
+        foreach ($this->tables as $tableName) {
             // check tables
-            if (!isset($this->schema1[$table_name])) {
-                $this->updateComponentTable($this->db1->getDbName(), $table_name);
+            if (!isset($this->schema1[$tableName])) {
+                $this->updateComponentTable($this->db1->getDbName(), $tableName);
                 continue;
             }
 
-            if (!isset($this->schema2[$table_name])) {
-                $this->updateComponentTable($this->db2->getDbName(), $table_name);
+            if (!isset($this->schema2[$tableName])) {
+                $this->updateComponentTable($this->db2->getDbName(), $tableName);
                 continue;
             }
         }
@@ -148,20 +159,20 @@ class DbDiff
      */
     public function compareColumns()
     {
-        foreach ($this->tables as $table_name) {
-            if (!isset($this->schema1[$table_name]) || !isset($this->schema2[$table_name])) {
+        foreach ($this->tables as $tableName) {
+            if (!isset($this->schema1[$tableName]) || !isset($this->schema2[$tableName])) {
                 continue;
             }
 
-            $fields = array_merge($this->schema1[$table_name], $this->schema2[$table_name]);
-            foreach ($fields as $field_name => $field) {
-                if (!isset($this->schema1[$table_name][$field_name])) {
-                    $this->updateComponentColumn($this->db1->getDbName(), $table_name, $field_name, true);
+            $fields = array_merge($this->schema1[$tableName], $this->schema2[$tableName]);
+            foreach ($fields as $fieldName => $field) {
+                if (!isset($this->schema1[$tableName][$fieldName])) {
+                    $this->updateComponentColumn($this->db1->getDbName(), $tableName, $fieldName, true);
                     continue;
                 }
 
-                if (!isset($this->schema2[$table_name][$field_name])) {
-                    $this->updateComponentColumn($this->db2->getDbName(), $table_name, $field_name, true);
+                if (!isset($this->schema2[$tableName][$fieldName])) {
+                    $this->updateComponentColumn($this->db2->getDbName(), $tableName, $fieldName, true);
                     continue;
                 }
             }
@@ -175,30 +186,30 @@ class DbDiff
      */
     public function compareColumnsAttribute()
     {
-        foreach ($this->tables as $table_name) {
-            if (!isset($this->schema1[$table_name]) || !isset($this->schema2[$table_name])) {
+        foreach ($this->tables as $tableName) {
+            if (!isset($this->schema1[$tableName]) || !isset($this->schema2[$tableName])) {
                 continue;
             }
 
-            $fields = array_merge($this->schema1[$table_name], $this->schema2[$table_name]);
-            foreach ($fields as $field_name => $field) {
-                if (!isset($this->schema1[$table_name][$field_name]) && !isset($this->schema2[$table_name][$field_name])) {
+            $fields = array_merge($this->schema1[$tableName], $this->schema2[$tableName]);
+            foreach ($fields as $fieldName => $field) {
+                if (!isset($this->schema1[$tableName][$fieldName]) && !isset($this->schema2[$tableName][$fieldName])) {
                     continue;
-                } elseif (!isset($this->schema1[$table_name][$field_name]) || isset($this->schema2[$table_name][$field_name])) {
-                    $this->updateComponentColumn($this->db1->getDbName(), $table_name, $field_name, true, $this->schema2[$table_name][$field_name]['column']);
+                } elseif (!isset($this->schema1[$tableName][$fieldName]) || isset($this->schema2[$tableName][$fieldName])) {
+                    $this->updateComponentColumn($this->db1->getDbName(), $tableName, $fieldName, true, $this->schema2[$tableName][$fieldName]['column']);
                     continue;
-                } elseif (isset($this->schema1[$table_name][$field_name]) || !isset($this->schema2[$table_name][$field_name])) {
-                    $this->updateComponentColumn($this->db2->getDbName(), $table_name, $field_name, true, $this->schema1[$table_name][$field_name]['column']);
+                } elseif (isset($this->schema1[$tableName][$fieldName]) || !isset($this->schema2[$tableName][$fieldName])) {
+                    $this->updateComponentColumn($this->db2->getDbName(), $tableName, $fieldName, true, $this->schema1[$tableName][$fieldName]['column']);
                     continue;
                 }
 
-                $s1_params = $this->schema1[$table_name][$field_name]['column'];
-                $s2_params = $this->schema2[$table_name][$field_name]['column'];
+                $s1Params = $this->schema1[$tableName][$fieldName]['column'];
+                $s2Params = $this->schema2[$tableName][$fieldName]['column'];
 
-                foreach ($s1_params as $name => $details) {
-                    if ($s1_params[$name] != $s2_params[$name]) {
-                        $this->updateComponentColumn($this->db1->getDbName(), $table_name, $field_name, null, array($name => $s2_params[$name]));
-                        $this->updateComponentColumn($this->db2->getDbName(), $table_name, $field_name, null, array($name => $s1_params[$name]));
+                foreach ($s1Params as $name => $details) {
+                    if ($s1Params[$name] != $s2Params[$name]) {
+                        $this->updateComponentColumn($this->db1->getDbName(), $tableName, $fieldName, null, [$name => $s2Params[$name]]);
+                        $this->updateComponentColumn($this->db2->getDbName(), $tableName, $fieldName, null, [$name => $s1Params[$name]]);
                     }
                 }
             }
@@ -212,43 +223,43 @@ class DbDiff
      */
     public function compareColumnsIndex()
     {
-        $return = array();
-        foreach ($this->tables as $table_name) {
-            if (!isset($this->schema1[$table_name]) || !isset($this->schema2[$table_name])) {
+        $return = [];
+        foreach ($this->tables as $tableName) {
+            if (!isset($this->schema1[$tableName]) || !isset($this->schema2[$tableName])) {
                 continue;
             }
 
-            $fields = array_merge($this->schema1[$table_name], $this->schema2[$table_name]);
+            $fields = array_merge($this->schema1[$tableName], $this->schema2[$tableName]);
 
-            foreach ($fields as $field_name => $field) {
-                if (!isset($this->schema1[$table_name][$field_name]['index']) && !isset($this->schema2[$table_name][$field_name]['index'])) {
+            foreach ($fields as $fieldName => $field) {
+                if (!isset($this->schema1[$tableName][$fieldName]['index']) && !isset($this->schema2[$tableName][$fieldName]['index'])) {
                     continue;
-                } elseif (!isset($this->schema1[$table_name][$field_name]['index']) || isset($this->schema2[$table_name][$field_name]['index'])) {
-                    $this->updateComponentIndex($this->db1->getDbName(), $table_name, $field_name, true, $this->schema2[$table_name][$field_name]['index']);
+                } elseif (!isset($this->schema1[$tableName][$fieldName]['index']) || isset($this->schema2[$tableName][$fieldName]['index'])) {
+                    $this->updateComponentIndex($this->db1->getDbName(), $tableName, $fieldName, true, $this->schema2[$tableName][$fieldName]['index']);
                     continue;
-                } elseif (isset($this->schema1[$table_name][$field_name]['index']) || !isset($this->schema2[$table_name][$field_name]['index'])) {
-                    $this->updateComponentIndex($this->db2->getDbName(), $table_name, $field_name, true, $this->schema1[$table_name][$field_name]['index']);
+                } elseif (isset($this->schema1[$tableName][$fieldName]['index']) || !isset($this->schema2[$tableName][$fieldName]['index'])) {
+                    $this->updateComponentIndex($this->db2->getDbName(), $tableName, $fieldName, true, $this->schema1[$tableName][$fieldName]['index']);
                     continue;
                 }
 
-                $s1_params = $this->schema1[$table_name][$field_name]['index'];
-                $s2_params = $this->schema2[$table_name][$field_name]['index'];
+                $s1Params = $this->schema1[$tableName][$fieldName]['index'];
+                $s2Params = $this->schema2[$tableName][$fieldName]['index'];
 
-                $indexes = array_unique(array_merge(array_keys($s1_params), array_keys($s2_params)));
+                $indexes = array_unique(array_merge(array_keys($s1Params), array_keys($s2Params)));
                 foreach ($indexes as $index) {
-                    if (empty($s1_params[$index])) {
-                        $this->updateComponentIndex($this->db1->getDbName(), $table_name, $field_name, true, $this->schema2[$table_name][$field_name]['index'][$index]);
+                    if (empty($s1Params[$index])) {
+                        $this->updateComponentIndex($this->db1->getDbName(), $tableName, $fieldName, true, $this->schema2[$tableName][$fieldName]['index'][$index]);
                         continue;
                     }
-                    if (empty($s2_params[$index])) {
-                        $this->updateComponentIndex($this->db2->getDbName(), $table_name, $field_name, true, $this->schema2[$table_name][$field_name]['index'][$index]);
+                    if (empty($s2Params[$index])) {
+                        $this->updateComponentIndex($this->db2->getDbName(), $tableName, $fieldName, true, $this->schema2[$tableName][$fieldName]['index'][$index]);
                         continue;
                     }
 
-                    foreach ($s1_params[$index] as $k => $v) {
-                        if ($s1_params[$index][$k] !== $s2_params[$index][$k]) {
-                            $this->updateComponentIndex($this->db1->getDbName(), $table_name, $field_name, null, array($k => $s2_params[$k]));
-                            $this->updateComponentIndex($this->db2->getDbName(), $table_name, $field_name, null, array($k => $s1_params[$k]));
+                    foreach ($s1Params[$index] as $k => $v) {
+                        if ($s1Params[$index][$k] !== $s2Params[$index][$k]) {
+                            $this->updateComponentIndex($this->db1->getDbName(), $tableName, $fieldName, null, [$k => $s2Params[$k]]);
+                            $this->updateComponentIndex($this->db2->getDbName(), $tableName, $fieldName, null, [$k => $s1Params[$k]]);
                         }
                     }
                 }
@@ -261,13 +272,13 @@ class DbDiff
     /**
      * Update table data of a DbComponent object
      *
-     * @param   string  $db_name
-     * @param   string  $table_name
+     * @param   string  $dbName    database's name to update
+     * @param   string  $tableName  Table'name to set
      */
-    private function updateComponentTable($db_name, $table_name)
+    private function updateComponentTable($dbName, $tableName)
     {
-        $db = $this->getDb($db_name);
-        $table = new DbComponent\TableComponent($table_name);
+        $db = $this->getDb($dbName);
+        $table = new DbComponent\TableComponent($tableName);
         $table->missing(true);
         $db->setTable($table);
         $this->setDb($db);
@@ -276,20 +287,20 @@ class DbDiff
     /**
      * Update column data of a DbComponent object
      *
-     * @param   string  $db_name
-     * @param   string  $table_name
-     * @param   string  $field_name
-     * @param   boolean $missing
-     * @param   array   $attributes
+     * @param   string  $dbName     database's name
+     * @param   string  $tableName  table's name
+     * @param   string  $fieldName  field's name to set
+     * @param   bool    $missing    if boolean, set the attribute "missing"
+     * @param   array   $attributes array of the attributes to set
      */
-    private function updateComponentColumn($db_name, $table_name, $field_name, $ismissing = null, $attributes = array())
+    private function updateComponentColumn($dbName, $tableName, $fieldName, $ismissing = null, $attributes = [])
     {
-        $db = $this->getDb($db_name);
-        if (!$table = $db->getTable($table_name)) {
-            $table = new DbComponent\TableComponent($table_name);
+        $db = $this->getDb($dbName);
+        if (!$table = $db->getTable($tableName)) {
+            $table = new DbComponent\TableComponent($tableName);
         }
-        if (!$column = $table->getColumn($field_name)) {
-            $column = new DbComponent\ColumnComponent($field_name);
+        if (!$column = $table->getColumn($fieldName)) {
+            $column = new DbComponent\ColumnComponent($fieldName);
         }
         if (is_bool($ismissing)) {
             $column->missing($ismissing);
@@ -304,20 +315,20 @@ class DbDiff
     /**
      * Update index data of a DbComponent object
      *
-     * @param   string  $db_name
-     * @param   string  $table_name
-     * @param   string  $index_name
-     * @param   boolean $missing
-     * @param   array   $attributes
+     * @param   string  $dbName      database's name
+     * @param   string  $tableName   table's name
+     * @param   string  $indexName  index's name to set
+     * @param   bool    $missing     if boolean, set the attribute "missing"
+     * @param   array   $attributes  array of the attributes to set
      */
-    private function updateComponentindex($db_name, $table_name, $index_name, $ismissing = null, $attributes = array())
+    private function updateComponentindex($dbName, $tableName, $indexName, $ismissing = null, $attributes = [])
     {
-        $db = $this->getDb($db_name);
-        if (!$table = $db->getTable($table_name)) {
-            $table = new DbComponent\TableComponent($table_name);
+        $db = $this->getDb($dbName);
+        if (!$table = $db->getTable($tableName)) {
+            $table = new DbComponent\TableComponent($tableName);
         }
-        if (!$index = $table->getIndex($index_name)) {
-            $index = new DbComponent\IndexComponent($index_name);
+        if (!$index = $table->getIndex($indexName)) {
+            $index = new DbComponent\IndexComponent($indexName);
         }
         if (is_bool($ismissing)) {
             $index->missing($ismissing);
