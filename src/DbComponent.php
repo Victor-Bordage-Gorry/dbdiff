@@ -1,4 +1,5 @@
 <?php
+
 namespace DbDiff;
 
 abstract class DbComponent
@@ -7,6 +8,11 @@ abstract class DbComponent
     protected $name;
     protected $missing;
 
+    /**
+     * Constructor : set the dabase's connection
+     *
+     * @param string $name  database's name
+     */
     public function __construct(string $name)
     {
         $this->setName($name);
@@ -19,7 +25,7 @@ abstract class DbComponent
     /**
      * Set database's name
      *
-     * @param   string  $name
+     * @param   string  $name database's name
      */
     public function setName(string $name)
     {
@@ -47,8 +53,8 @@ abstract class DbComponent
     /**
      * Set missing attribute and return the value. If $missing is null, the function return the value of the attribute
      *
-     * @param   boolean $missing
-     * @return  boolean
+     * @param   bool $missing if true or false, set the value
+     * @return  bool
      */
     public function missing($missing = null)
     {

@@ -5,7 +5,7 @@ namespace DbDiff\DbComponent;
 class IndexComponent extends \DbDiff\DbComponent
 {
 
-    protected $attributes = array();
+    protected $attributes = [];
 
     /**
      * ### SETTERS ###
@@ -29,8 +29,8 @@ class IndexComponent extends \DbDiff\DbComponent
     /**
      * Add an attribute to the IndexComponent object
      *
-     * @param string    $name
-     * @param string    $value
+     * @param string    $name index's attribute name
+     * @param string    $value index's attribute value
      */
     public function setAttribute($name, $value)
     {

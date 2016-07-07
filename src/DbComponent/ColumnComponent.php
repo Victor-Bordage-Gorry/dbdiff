@@ -5,7 +5,7 @@ namespace DbDiff\DbComponent;
 class ColumnComponent extends \DbDiff\DbComponent
 {
 
-    protected $attributes = array();
+    protected $attributes = [];
 
     /**
      * ### SETTERS ###
@@ -29,8 +29,8 @@ class ColumnComponent extends \DbDiff\DbComponent
     /**
      * Add a attribute to the ColumnComponent object
      *
-     * @param string    $name
-     * @param string    $value
+     * @param string    $name   attribute's name
+     * @param string    $value  attribute's value
      */
     public function setAttribute($name, $value)
     {

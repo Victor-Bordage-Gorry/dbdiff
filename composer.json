@@ -12,5 +12,8 @@
         "psr-4": {
             "DbDiff\\": "src/"
         }
+    },
+    "require-dev": {
+        "cakephp/cakephp-codesniffer": "^2.0"
     }
 }

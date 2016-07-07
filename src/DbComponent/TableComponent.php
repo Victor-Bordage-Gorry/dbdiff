@@ -5,8 +5,8 @@ namespace DbDiff\DbComponent;
 class TableComponent extends \DbDiff\DbComponent
 {
 
-    protected $columns = array();
-    protected $indexes = array();
+    protected $columns = [];
+    protected $indexes = [];
     protected $missing = false;
 
     /**
@@ -31,7 +31,7 @@ class TableComponent extends \DbDiff\DbComponent
     /**
      * Add a Column to the TableComponent object
      *
-     * @param   ColumnComponent $column
+     * @param   ColumnComponent $column column to add
      */
     public function setColumn(ColumnComponent $column)
     {
@@ -56,7 +56,7 @@ class TableComponent extends \DbDiff\DbComponent
     /**
      * Add a Index to the TableComponent object
      *
-     * @param   IndexComponent $column
+     * @param   IndexComponent $column index to add
      */
     public function setIndex(IndexComponent $index)
     {

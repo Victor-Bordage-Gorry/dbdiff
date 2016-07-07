@@ -7,9 +7,14 @@ use \DbDiff\DbComponent as Dbc;
 class DbComponent extends Dbc
 {
 
-    protected $tables = array();
+    protected $tables = [];
     protected $type;
 
+    /**
+     *  The constructor need the database's name and type
+     * @param string $name database's name
+     * @param string $type database's tye
+     */
     public function __construct(string $name, string $type)
     {
         $this->setName($name);
@@ -39,7 +44,7 @@ class DbComponent extends Dbc
     /**
      * Add a table to the DbComponent object
      *
-     * @param   TableComponent  $table
+     * @param   TableComponent  $table Table to add
      */
     public function setTable(TableComponent $table)
     {
@@ -49,7 +54,7 @@ class DbComponent extends Dbc
     /**
      * Set database's name
      *
-     * @param   string  $name
+     * @param   string  $name type's name
      */
     public function setType(string $type)
     {

@@ -17,18 +17,30 @@ class DbDiff
 
     public static function buildFromConfig(array $config)
     {
-        /*foreach ($i = 0; $i < 2; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $conf = $config[$i];
-            if (empty($conf['host']) || empty($conf['username']) || empty($conf['password']) || empty($conf['db_name'])) {
-                throw new \InvalidArgumentException('Error in database\'s configuration.');
+            if (empty($conf['host']) || empty($conf['username']) || empty($conf['password']) || empty($conf['dbname'])) {
+                throw new \InvalidArgumentException('Error in database\'s configuration : argument(s) missing');
             }
-
-
+            if (!class_exists($conf['connector'])) {
+                throw new \InvalidArgumentException('Error : unreconized connector');
+            }
+            if (!class_exists($conf['translator'])) {
+                throw new \InvalidArgumentException('Error : unreconized translator');
+            }
+            $dbC = new $conf['connector']($conf['host'], $conf['username'],$conf['password'],$conf['dbname']);
+            $dbT = new $conf['translator']($dbC);
+            $varname = 'db' . ($i +1);
+            $$varname= $dbT;
         }
-        self::BuildFromDictionary($db1, $db2);*/
+        if (isset($db1) && isset($db2)) {
+            return new DbDiff($db1, $db2);
+        } else {
+            throw new \InvalidArgumentException('Error : not enough database\'s configuration');
+        }
     }
 
-    public function __construct(DbDictionary $db1, DbDictionary $db2) {
+    public function __construct(DbTranslator $db1, DbTranslator $db2) {
         $this->db1 = $db1;
         $this->db2 = $db2;
 

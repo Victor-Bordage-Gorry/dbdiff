@@ -1,10 +1,10 @@
 <?php
 
-namespace DbDiff\Connexion;
+namespace DbDiff\DbConnector;
 
-use DbDiff\Connexion;
+use DbDiff\DbConnector;
 
-class Mysql extends Connexion
+class Mysql extends DbConnector
 {
     const DB_TYPE = 'Mysql';
 
